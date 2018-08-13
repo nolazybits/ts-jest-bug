@@ -1,0 +1,29 @@
+version: '3.6'
+
+services:
+  ts-test-bug:
+    container_name: ts-test-bug
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    environment:
+      - APPLICATION_PORT=${CONTAINER_APP_PORT}
+      - DEBUG_PORT=${CONTAINER_DEBUG_PORT}
+    ports:
+      - ${HOST_APP_PORT}:3636
+      - ${HOST_DEBUG_PORT}:${CONTAINER_DEBUG_PORT}
+    volumes:
+    - ts-test--data:/home/application
+    # link to the host docker socket, i.e the docker in the container will use the host docker
+    - /var/run/docker.sock:/var/run/docker.sock
+    command: tail -f /dev/null
+
+volumes:
+  # our application source
+  ts-test--data: #./
+    name: "ts-test--data"
+    driver: local
+    driver_opts:
+      type: none
+      device: ${HOST_PATH} # this is the mount path on the host, check the .env please
+      o: bind
